@@ -1,0 +1,255 @@
+<template>
+  <div class="hello">
+      <div id="calculator"> 
+<div id="calcu-head"></div> 
+<form name="calculator" action="" method="get"> 
+<div id="calcu-screen"> 
+<!--配置显示窗口，使用onfocus="this.blur();"避免键盘输入--> 
+<input type="text" name="numScreen" class="screen" value="0" onfocus="this.blur();" /> 
+</div> 
+<div id="calcu-btn"> 
+<ul> <!--配置按钮--> 
+<li @click="command(7)">7</li> 
+<li @click="command(8)">8</li> 
+<li @click="command(9)">9</li> 
+<li class="tool" @click="del()">←</li> 
+<li class="tool" @click="clearscreen()">C</li> 
+<li @click="command(4)">4</li> 
+<li @click="command(5)">5</li> 
+<li @click="command(6)">6</li> 
+<li class="tool" @click="times()">×</li> 
+<li class="tool" @click="divide()">÷</li> 
+<li @click="command(1)">1</li> 
+<li @click="command(2)">2</li> 
+<li @click="command(3)">3</li> 
+<li class="tool" @click="plus()">+</li> 
+<li class="tool" @click="minus()">-</li> 
+<li @click="command(0)">0</li> 
+<li @click="dzero()">00</li> 
+<li @click="dot()">.</li> 
+<li class="tool" @click="persent()">%</li> 
+<li class="tool" @click="equal()">=</li> 
+</ul> 
+</div> 
+<div id="calcu-foot"> 
+<span id="note"></span> 
+</div> 
+</form> 
+</div> 
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'hello',
+  data () {
+	return {ca:{
+		num:0,
+		result:0,
+		numshow:"0",
+		operate:0,//判断输入状态的标志
+		calcul:0,//判断计算状态的标志
+		quit:0,//防止重复按键的标志
+	}}
+  },
+  methods:{
+	command:function(num){
+		var str=String(document.calculator.numScreen.value); //获取当前显示的值
+		str=(str!="0")?((this.ca.operate==0)?str:''):'';//如果当前值不是‘0’，且状态为0，则返回当前值，否则返回空值
+		str=str+String(num);//给当前值追加字符
+		document.calculator.numScreen.value=str;//刷新显示
+		this.ca.operate=0;//重置输入状态
+		this.ca.quit=0;//重置防止重复按键的标志
+	},
+	del:function(){
+		var str=String(document.calculator.numScreen.value);
+		str=(str!='0')?str:'';
+		str=str.substr(0,str.length-1);
+		str=(str!='')?str:'0';
+		document.calculator.numScreen.value=str;
+	},
+	clearscreen:function(){
+		this.ca.num=0;
+		this.ca.result=0;
+		this.ca.numshow="0";
+		document.calculator.numScreen.value='0';
+	},
+	times:function(){
+		this.calculate();
+		this.ca.operate=1;
+		this.ca.calcul=3;
+	},
+	divide:function(){
+		this.calculate();
+		this.ca.operate=1;
+		this.ca.calcul=4
+	},
+	plus:function(){
+		this.calculate();
+		this.ca.operate=1;//更改输入状态
+		this.ca.calcul=1;//更改计算状态为加
+	},
+	minus:function(){
+		this.calculate();
+		this.ca.operate=1;
+		this.ca.calcul=2;
+	},
+	dzero:function(){
+		var str=String(document.calculator.numScreen.value);
+		str=(str!='0')?((this.ca.operate==0)?str+'00':'0'):'0';//如果当前值不是‘0’，且状态为0，则返回当前str+‘00’，否则返回‘0’；
+		document.calculator.numScreen.value=str;
+		this.ca.operate=0;
+	},
+	dot:function(){
+		var str=String(document.calculator.numScreen.value);
+		str=(str!='0')?((this.ca.operate==0)?str:'0'):'0';//如果当前值不是‘0’，且状态为0，则返回当前值，否则返回‘0’；
+		for(var i=0;i<=str.length;i++){//判断是否已经有一个点号
+			if(str.substr(i,1)=='.'){return false}//如果有则不再插入
+		}
+		str=str+'.';
+		document.calculator.numScreen.value=str;
+		this.ca.operate=0;
+	},
+	persent:function(){
+		this.calculate();
+		this.ca.operate=1;
+		this.ca.calcul=5
+	},
+	equal:function(){
+		this.calculate();
+		this.ca.operate=1;
+		this.ca.num=0;
+		this.ca.result=0;
+		this.ca.numshow='0'
+	},
+	calculate:function(){
+		this.ca.numshow=Number(document.calculator.numScreen.value);
+		if(this.ca.num!=0&&this.ca.quit!=1){//判断前一个运算数是否为零以及防重复按键的状态
+			switch(this.ca.calcul){//判断要输入状态
+				case 1: this.ca.result=this.ca.num+this.ca.numshow;break;//计算‘+’
+				case 2: this.ca.result=this.ca.num-this.ca.numshow;break;//计算‘-’
+				case 3: this.ca.result=this.ca.num*this.ca.numshow;break;//
+				case 4: if(this.ca.numshow!=0){this.ca.result=this.ca.num/this.ca.numshow}else{
+				        document.getElementById('note').innerHTML='被除数不能为零！';setTimeout(this.clearnote,4000)} break;
+				case 5: this.ca.result=this.ca.num%this.ca.numshow;break;
+			}
+			this.ca.quit=1;//避免重复按键	
+		}else{
+			this.ca.result=this.ca.numshow;
+		}
+		this.ca.numshow=String(this.ca.result);
+		document.calculator.numScreen.value=this.ca.numshow;
+		this.ca.num=this.ca.result;//存储当前值
+	},
+	clearnote:function(){
+		document.getElementById('note').innerHTML='';
+	}
+  }
+}
+</script>
+
+<!-- Add "scoped" attribute to limit CSS to this component only -->
+<style scoped>
+body { 
+font-size:12px; 
+font-family:Arial, Georgia, "Times New Roman", Times, serif; 
+color:#555; 
+text-align:center; 
+background-color:#e2e2e2; 
+} 
+h6{ 
+margin:0; 
+font-size:12px; 
+} 
+#calculator { 
+width:240px; 
+height:auto; 
+overflow:hidden; 
+margin:10px auto; 
+border:#fff 1px solid; 
+padding-bottom:10px; 
+background-color:#f2f2f2; 
+} 
+#calculator div { 
+clear:both; 
+} 
+#calculator ul{ 
+padding:0; 
+margin:5px 14px; 
+border:#fff 1px solid; 
+height:auto; 
+overflow:hidden 
+} 
+#calculator li{ 
+list-style:none; 
+float:left; 
+width:32px; 
+height:32px; 
+margin:5px; 
+display:inline; 
+line-height:32px; 
+font-size:14px; 
+background-color:#eaeaea; 
+} 
+#calculator li.tool{ 
+background-color:#e2e2e2; 
+} 
+#calculator li:hover{ 
+background-color:#f9f9f9; 
+cursor:pointer; 
+} 
+#calculator li:active{ 
+background-color:#fc0; 
+cursor:pointer; 
+} 
+#calculator li.tool:active{ 
+background-color:#d8e8ff; 
+cursor:pointer; 
+} 
+#calcu-head { 
+text-align:left; 
+padding:10px 15px 5px; 
+} 
+span.imyeah { 
+float:right; 
+color:#ccc; 
+} 
+span.imyeah a{ 
+color:#ccc; 
+} 
+.screen{ 
+width:200px; 
+height:24px; 
+line-height:24px; 
+padding:4px; 
+border:#e6e6e6 1px solid; 
+border-bottom:#f2f2f2 1px solid; 
+border-right:#f2f2f2 1px solid; 
+margin:10px auto; 
+direction:ltr; 
+text-align:right; 
+font-size:16px; 
+color:#999; 
+} 
+#calcu-foot{ 
+text-align:left; 
+padding:10px 15px 5px; 
+height:auto; 
+overflow:hidden; 
+} 
+span#note{ 
+float:left; 
+width:210px; 
+height:auto; 
+overflow:hidden; 
+color:red; 
+} 
+span.welcome{ 
+clear:both; 
+color:#999; 
+} 
+span.welcome a{ 
+float:right; 
+color:#999; 
+} 
+</style>
